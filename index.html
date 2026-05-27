@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Guia Técnico de Geociências e Gestão Ambiental da Amazônia</title>
+    <script>
+      (function() {
+        try {
+          var fallbackWriteText = function(text) {
+            return new Promise(function(resolve, reject) {
+              try {
+                var textArea = document.createElement("textarea");
+                textArea.value = text;
+                textArea.style.position = "fixed";
+                textArea.style.left = "-9999px";
+                textArea.style.top = "-999px";
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                var successful = document.execCommand('copy');
+                document.body.removeChild(textArea);
+                if (successful) {
+                  resolve();
+                } else {
+                  reject(new Error('Copy failed'));
+                }
+              } catch (err) {
+                reject(err);
+              }
+            });
+          };
+
+          var customClipboard = {
+            writeText: fallbackWriteText,
+            readText: function() { return Promise.resolve(""); }
+          };
+
+          if (typeof window !== 'undefined') {
+            if (window.Navigator && window.Navigator.prototype) {
+              try {
+                Object.defineProperty(window.Navigator.prototype, 'clipboard', {
+                  get: function() { return customClipboard; },
+                  configurable: true,
+                  enumerable: true
+                });
+              } catch (e) {}
+            }
+
+            if (window.navigator) {
+              try {
+                Object.defineProperty(window.navigator, 'clipboard', {
+                  get: function() { return customClipboard; },
+                  configurable: true,
+                  enumerable: true
+                });
+              } catch (e) {
+                try {
+                  window.navigator.clipboard = customClipboard;
+                } catch (e2) {}
+              }
+            }
+          }
+        } catch (e) {
+          console.warn("Navigator clipboard polyfill loading exception:", e);
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+
